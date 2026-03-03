@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Login / Signup</title>
+<link rel="stylesheet" href="globals.css" />
+</head>
+<body>
+
+<div class="wrapper">
+  <div class="forms" id="formContainer">
+
+    <div class="card">
+      <h1>Welcome Back!</h1>
+      <input type="text" class="input-field" placeholder="username">
+      <input type="password" class="input-field" placeholder="password">
+      <button class="btn">Login</button>
+      <div class="switch-text">
+        Don't have an account? <br>
+        <span onclick="showSignup()">Sign Up</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h1>New Here?</h1>
+      <input type="text" class="input-field" placeholder="username">
+      <input type="password" class="input-field" placeholder="password">
+      <button class="btn">Sign Up</button>
+      <div class="switch-text">
+        Have an account? <br>
+        <span onclick="showLogin()">Login</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showSignup() {
+  document.getElementById("formContainer").style.transform = "translateX(-320px)";
+}
+function showLogin() {
+  document.getElementById("formContainer").style.transform = "translateX(0)";
+}
+</script>
+
+</body>
+</html>

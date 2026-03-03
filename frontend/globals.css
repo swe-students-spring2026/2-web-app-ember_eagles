@@ -1,0 +1,121 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font: 16px Arial, sans-serif;
+  background: #4a4a4a;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* shared */
+.input-field {
+  display: block;
+  width: 80%;
+  margin: 10px auto;
+  padding: 10px;
+  border: none;
+  border-radius: 20px;
+  background: #cfcfcf;
+  text-align: center;
+}
+
+.btn {
+  display: block;
+  width: 70%;
+  margin: 10px auto;
+  padding: 10px;
+  border: none;
+  border-radius: 20px;
+  background: #cfcfcf;
+  cursor: pointer;
+}
+
+.btn:hover { background: #bdbdbd; }
+
+/* login page */
+.wrapper {
+  width: 320px;
+  height: 520px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.forms {
+  display: flex;
+  width: 640px;
+  transition: transform 0.4s ease;
+}
+
+.card {
+  width: 320px;
+  height: 520px;
+  padding: 40px 20px;
+  background: #e6e6e6;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.card h1 { font-size: 20px; margin-bottom: 30px; }
+.card .btn { margin-top: 20px; }
+
+.switch-text { margin-top: 20px; font-size: 13px; }
+.switch-text span { font-weight: bold; cursor: pointer; }
+
+/* profile page */
+.phone {
+  width: 320px;
+  height: 560px;
+  background: #e6e6e6;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.header {
+  padding: 20px;
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
+  background: #4a4a4a;
+  text-align: center;
+}
+
+.content {
+  flex: 1;
+  padding: 30px 20px;
+  text-align: center;
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+  background: #cfcfcf;
+  border-radius: 50%;
+}
+
+.username { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+.email { font-size: 14px; margin-bottom: 20px; }
+
+.navbar {
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  background: #d1d1d1;
+}
+
+.nav-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 10px;
+  font-size: 12px;
+  background: #cfcfcf;
+  cursor: pointer;
+}
+
+#editSection { display: none; }

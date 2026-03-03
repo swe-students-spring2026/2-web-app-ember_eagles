@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Profile</title>
+<link rel="stylesheet" href="globals.css" />
+</head>
+<body>
+
+<div class="phone">
+  <div class="header" id="pageTitle">Profile Page</div>
+  <div class="content">
+
+    <div id="profileSection">
+      <div class="avatar"></div>
+      <div class="username" id="displayUsername">Username</div>
+      <div class="email" id="displayEmail">email@email.com</div>
+      <button class="btn">View Own Reviews</button>
+      <button class="btn">View Joined Groups</button>
+      <button class="btn" onclick="showEdit()">Edit</button>
+    </div>
+
+    <div id="editSection">
+      <div class="avatar"></div>
+      <input type="text" id="editUsername" class="input-field" placeholder="Username">
+      <input type="email" id="editEmail" class="input-field" placeholder="Email">
+      <button class="btn" onclick="saveProfile()">Save</button>
+    </div>
+
+  </div>
+  <div class="navbar">
+    <button class="nav-btn">Home</button>
+    <button class="nav-btn">Post</button>
+    <button class="nav-btn">Profile</button>
+    <button class="nav-btn">Groups</button>
+  </div>
+</div>
+
+<script>
+function showEdit() {
+  document.getElementById("profileSection").style.display = "none";
+  document.getElementById("editSection").style.display = "block";
+  document.getElementById("pageTitle").textContent = "Edit Profile";
+  document.getElementById("editUsername").value = document.getElementById("displayUsername").textContent;
+  document.getElementById("editEmail").value = document.getElementById("displayEmail").textContent;
+}
+
+function saveProfile() {
+  document.getElementById("displayUsername").textContent = document.getElementById("editUsername").value;
+  document.getElementById("displayEmail").textContent = document.getElementById("editEmail").value;
+  document.getElementById("editSection").style.display = "none";
+  document.getElementById("profileSection").style.display = "block";
+  document.getElementById("pageTitle").textContent = "Profile Page";
+}
+</script>
+
+</body>
+</html>
