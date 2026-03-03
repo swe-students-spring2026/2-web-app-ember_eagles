@@ -1,6 +1,5 @@
 import os
 import datetime
-from click import group
 from flask import Flask, render_template, request, session, redirect, abort, url_for, make_response, flash
 import pymongo
 from bson.objectid import ObjectId
@@ -24,6 +23,7 @@ def create_app():
     users = db["users"]
     groups = db["groups"]
     reviews = db["reviews"]
+    restaurants = db["restaurants"]
 
     try:
         connection.admin.command("ping")
@@ -31,10 +31,104 @@ def create_app():
     except Exception as e:
         print(" * MongoDB connection error:", e)
 
+
+    @app.before_request
+    def require_login():
+        allowed_routes = ["login", "login_post", "signup", "signup_post", "static"]
+
+        if request.endpoint in allowed_routes:
+            return
+
+        if "user_id" not in session:
+            return redirect(url_for("login"))
+
     @app.route("/")
-    def home():
-        return render_template("home.html", username=session.get("username"))
-    
+    def restaurant_list():
+        user_id = session.get("user_id")
+        if not user_id:
+            return redirect(url_for("login_page"))
+
+        user_oid = ObjectId(user_id)
+
+        my_groups = list(groups.find(
+            {"members": user_oid},
+            {"name": 1}
+        ))
+        my_group_ids = [g["_id"] for g in my_groups]
+
+        selected_group_id = request.args.get("group_id", "").strip()
+
+        if selected_group_id:
+            try:
+                gid = ObjectId(selected_group_id)
+            except Exception:
+                flash("Invalid group.")
+                return redirect(url_for("restaurant_list"))
+
+            if gid not in my_group_ids:
+                flash("You are not a member of this group.")
+                return redirect(url_for("restaurant_list"))
+
+            group_ids_to_use = [gid]
+        else:
+            group_ids_to_use = my_group_ids
+
+        if not group_ids_to_use:
+            return render_template(
+                "restaurant-list.html",
+                username=session.get("username"),
+                groups=my_groups,
+                selected_group_id=selected_group_id,
+                restaurants=[]
+            )
+
+        restaurant_ids = reviews.distinct(
+            "restaurant_id",
+            {"group_id": {"$in": group_ids_to_use}}
+        )
+
+        if not restaurant_ids:
+            return render_template(
+                "restaurant-list.html",
+                username=session.get("username"),
+                groups=my_groups,
+                selected_group_id=selected_group_id,
+                restaurants=[]
+            )
+        
+        review_docs = list(reviews.find(
+            {"group_id": {"$in": group_ids_to_use}, "restaurant_id": {"$in": restaurant_ids}},
+            {"restaurant_id": 1, "rating": 1}
+        ))
+        rating_sum = {}
+        rating_cnt = {}
+
+        for r in review_docs:
+            rid = r["restaurant_id"]
+            rating = r.get("rating")
+            if rating is None:
+                continue
+            rating_sum[rid] = rating_sum.get(rid, 0) + float(rating)
+            rating_cnt[rid] = rating_cnt.get(rid, 0) + 1
+
+        restaurants_list = list(restaurants.find(
+            {"_id": {"$in": restaurant_ids}},
+            {"name": 1, "address": 1}
+        ))
+
+        for r in restaurants_list:
+            rid = r["_id"]
+            r["avg_rating"] = rating_sum.get(rid, 0) / rating_cnt.get(rid, 1) if rating_cnt.get(rid, 0) > 0 else 0
+
+        return render_template(
+        "restaurant-list.html",
+        username=session.get("username"),
+        groups=my_groups,
+        selected_group_id=selected_group_id,
+        restaurants=restaurants_list
+    )
+
+# Authentication routes
     @app.route("/login", methods = ["GET"])
     def login():
         return render_template("login.html")
@@ -54,7 +148,7 @@ def create_app():
             return redirect(url_for("login"))
         session["user_id"] = str(user["_id"])
         session["username"] = user["username"]
-        return redirect(url_for("home"))
+        return redirect(url_for("restaurant_list"))
     
     @app.route("/logout", methods = ["GET"])
     def logout():
@@ -85,10 +179,61 @@ def create_app():
         })
         flash("Account created successfully.")
         return redirect(url_for("login"))
+    
+# Restaurant routes
+    @app.route("/restaurant/<restaurant_id>", methods=["GET"])
+    def restaurant_details(restaurant_id):
+        try:
+            rid = ObjectId(restaurant_id)
+        except Exception:
+            flash("Invalid restaurant id.")
+            return redirect(url_for("restaurant_list"))
 
+        restaurant = restaurants.find_one({"_id": rid})
+        if not restaurant:
+            flash("Restaurant not found.")
+            return redirect(url_for("restaurant_list"))
+
+        restaurant_reviews = list(reviews.find({"restaurant_id": rid}))
+
+        # average rating
+        ratings = [r["rating"] for r in restaurant_reviews if r.get("rating") is not None]
+        avg_rating = round(sum(ratings) / len(ratings), 2) if ratings else None
+
+        # users
+        user_ids = {r["author_id"] for r in restaurant_reviews}
+        user_map = {
+            u["_id"]: u["username"]
+            for u in users.find({"_id": {"$in": list(user_ids)}})
+        }
+
+        # groups
+        group_ids = {r["group_id"] for r in restaurant_reviews}
+        group_map = {
+            g["_id"]: g["name"]
+            for g in groups.find({"_id": {"$in": list(group_ids)}})
+        }
+
+        for r in restaurant_reviews:
+            r["author_name"] = user_map.get(r["author_id"], "Unknown")
+            r["group_name"] = group_map.get(r["group_id"], "Unknown")
+
+        return render_template(
+        "restaurant-detail.html",
+        restaurant=restaurant,
+        reviews=restaurant_reviews,
+        avg_rating=avg_rating,
+        review_count=len(restaurant_reviews)
+    )
+    
+# Profile routes
     @app.route("/profile", methods = ["GET"])
     def profile():
         return render_template("profile.html", username=session["username"])
+    
+    @app.route("/profile/edit", methods = ["GET"])
+    def profile_edit_get():
+        return render_template("edit-profile.html")
     
     @app.route("/profile/edit", methods = ["POST"])
     def profile_edit():
@@ -105,6 +250,7 @@ def create_app():
         flash("Profile updated successfully.")
         return redirect(url_for("profile"))
     
+# Group routes
     @app.route("/groups", methods = ["GET"])
     def groups():
         user_id = ObjectId(session["user_id"])
@@ -162,21 +308,27 @@ def create_app():
         flash("Group created successfully.")
         return redirect(url_for("groups"))
     
-    @app.route("/join_group/<group_id>", methods=["POST"])
-    def join_group(group_id):
+    @app.route("/join_group", methods = ["GET"])
+    def join_group_form():
+        
+        return render_template("join-group.html")
+    
+    @app.route("/join_group", methods=["POST"])
+    def join_group():
 
         user_oid = ObjectId(session["user_id"])
+        group_id = request.form.get("group_id", "").strip()
 
         try:
             gid = ObjectId(group_id)
         except Exception:
             flash("Invalid group id.")
-            return redirect(url_for("groups"))
+            return redirect(url_for("join_group_form"))
 
         group = groups.find_one({"_id": gid})
         if not group:
             flash("Group not found.")
-            return redirect(url_for("groups"))
+            return redirect(url_for("join_group_form"))
 
         result = groups.update_one(
         {"_id": gid},
@@ -188,29 +340,60 @@ def create_app():
         else:
             flash("Joined group successfully.")
 
-        return redirect(url_for("group_details", group_id=group_id))
+        return redirect(url_for("groups"))
     
-    @app.route("/review", methods=["POST"])
+    # Restaurant review routes
+    @app.route("/review", methods=["GET"])
+    def my_reviews():
+        user_id = ObjectId(session["user_id"])
+        my_reviews = list(reviews.find({"user_id": user_id}))
+        return render_template("my-reviews.html", reviews=my_reviews)
+    
+    @app.route("/review/new", methods=["GET"])
     def review():
+        user_oid = ObjectId(session["user_id"])
+
+        my_groups = list(groups.find(
+        {"members": user_oid},
+        {"name": 1}
+        ))
+
+        return render_template("review.html", groups=my_groups)
+    
+    @app.route("/review/new", methods=["POST"])
+    def review_post():
         restaurant_name = request.form.get("restaurant_name", "").strip()
         address = request.form.get("address", "").strip()
         review_text = request.form.get("review_text", "").strip()
-        rating = request.form.get("rating", "").strip()
+        rating = int(request.form.get("rating", "0"))
+        group = request.form.get("group", "").strip()
+        gid = ObjectId(group) if group else None
+
 
         if not review_text or not restaurant_name or not address:
             flash("Please enter a restaurant name, address, and review text.")
-            return redirect(url_for("groups"))
+            return redirect(url_for("review"))
+        
+        rest = restaurants.find_one({"name": restaurant_name, "address": address})
+        if not rest:
+            rest_id = restaurants.insert_one({
+            "name": restaurant_name,
+            "address": address,
+            }).inserted_id
+        else:
+            rest_id = rest["_id"]
 
         reviews.insert_one({
             "text": review_text,
-            "restaurant_name": restaurant_name,
+            "restaurant_id": rest_id,
             "address": address,
             "rating": rating,
-            "user_id": ObjectId(session["user_id"])
+            "user_id": ObjectId(session["user_id"]),
+            "group_id": gid
         })
 
         flash("Review submitted successfully.")
-        return redirect(url_for("restaurant-list"))
+        return redirect(url_for("my_reviews"))
     
     @app.route("/review/<review_id>/delete", methods=["POST"])
     def delete_review(review_id):
@@ -218,10 +401,11 @@ def create_app():
             rid = ObjectId(review_id)
         except Exception:
             flash("Invalid review id.")
-            return redirect(url_for("restaurant-list"))
+            return redirect(url_for("my_reviews"))
 
         result = reviews.delete_one({"_id": rid, "user_id": ObjectId(session["user_id"])})
         flash("Review deleted successfully.")
+        return redirect(url_for("my_reviews"))
 
     @app.route("/review/<review_id>", methods=["GET"])
     def view_review(review_id):
@@ -229,12 +413,12 @@ def create_app():
             rid = ObjectId(review_id)
         except Exception:
             flash("Invalid review id.")
-            return redirect(url_for("restaurant-list"))
+            return redirect(url_for("my_reviews"))
 
         review = reviews.find_one({"_id": rid})
         if not review:
             flash("Review not found.")
-            return redirect(url_for("restaurant-list"))
+            return redirect(url_for("my_reviews"))
 
         return render_template("view-review.html", review=review)
     
@@ -244,14 +428,14 @@ def create_app():
             rid = ObjectId(review_id)
         except Exception:
             flash("Invalid review id.")
-            return redirect(url_for("restaurant-list"))
+            return redirect(url_for("my_reviews"))
 
         review = reviews.find_one({"_id": rid})
         if not review:
             flash("Review not found.")
-            return redirect(url_for("restaurant-list"))
+            return redirect(url_for("my_reviews"))
 
-        return render_template("edit-review.html", review=review)
+        return render_template("review.html", review=review)
 
     @app.route("/review/<review_id>/edit", methods=["POST"])
     def edit_review(review_id):
@@ -259,29 +443,42 @@ def create_app():
             rid = ObjectId(review_id)
         except Exception:
             flash("Invalid review id.")
-            return redirect(url_for("restaurant-list"))
+            return redirect(url_for("my_reviews"))
         
         address = request.form.get("address", "").strip()
         rating = request.form.get("rating", "").strip()
         restaurant_name = request.form.get("restaurant_name", "").strip()
         review_text = request.form.get("review_text", "").strip()
-        if not review_text:
-            flash("Please enter a review text.")
-            return redirect(url_for("restaurant-list"))
+        group = request.form.get("group", "").strip()
+        gid = ObjectId(group) if group else None
 
-        result = reviews.update_one(
+        if not review_text or not restaurant_name or not address:
+            flash("Please enter a restaurant name, an address, and your review text.")
+            return redirect(url_for("edit_review_form", review_id=review_id))
+
+        rest = restaurants.find_one({"name": restaurant_name, "address": address})
+        if not rest:
+            rest_id = restaurants.insert_one({
+            "name": restaurant_name,
+            "address": address,
+            }).inserted_id
+        else:
+            rest_id = rest["_id"]
+
+        reviews.update_one(
             {"_id": rid},
             {"$set": {
                 "text": review_text,
                 "address": address,
                 "rating": rating,
-                "restaurant_name": restaurant_name
+                "restaurant_id": rest_id,
+                "user_id": ObjectId(session["user_id"]),
+                "group_id": gid
             }})
         
-
         flash("Review updated successfully.")
 
-        return redirect(url_for("restaurant-list"))
+        return redirect(url_for("my_reviews"))
 
     return app
 
