@@ -102,13 +102,15 @@ body {
 .username { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
 .email { font-size: 14px; margin-bottom: 20px; }
 
+/* bottom navigation bar */
 .navbar {
   display: flex;
   justify-content: space-around;
   padding: 10px 0;
-  background: #d1d1d1;
+  background: #616868;
 }
 
+/* bottom navigation bar *buttton* */
 .nav-btn {
   padding: 6px 12px;
   border: none;
