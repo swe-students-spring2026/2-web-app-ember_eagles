@@ -1,23 +1,39 @@
 <!doctype html>
 <html lang="en">
-  <!-- Boilerplate -->
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Restaurant Detail</title>
     <link rel="stylesheet" href="globals.css" />
   </head>
-
   <body>
     <div class="phone">
-      <div class="header">Restaurants</div>
-
-      <!-- allows scrolling -->
       <div class="content scroll">
+        <!-- Top info section -->
+         <!-- TODOs: 
+            1. allow dynamic insertion of details (address, image, name, etc.)
+            2. format this section to be left leaning
+        -->
+        <div class="restaurant-top">
+          <div class="restaurant-image">
+            <img
+              src="/images/placeholder.png"
+              alt="Restaurant Image"
+              style="width: 100%; height: 100%; object-fit: cover;"
+            />
+          </div>
 
-        <!-- TODO: filter -->
+          <div class="restaurant-info">
+            <div class="restaurant-name">Restaurant Name</div>
+            <div class="restaurant-address">
+              ### Street Name, City, State ZIP#
+            </div>
+          </div>
+        </div>
 
-        <!-- TODO: add and allow actual insertions of resturant cards -->
+        <h2 class="section-title">Reviews</h2>
+
+        <!-- TODO: implement Actual Reviews -->
         <p>Item 1</p>
         <p>Item 2</p>
         <p>Item 3</p>
@@ -32,6 +48,7 @@
         <p>Item 12</p>
       </div>
 
+      <!-- Nav Bar -->
       <div class="navbar">
         <button class="nav-btn">Home</button>
         <button class="nav-btn">Post</button>
