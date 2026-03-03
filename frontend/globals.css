@@ -120,4 +120,11 @@ body {
   cursor: pointer;
 }
 
+/* make the main content area scroll but keep navbar in place at the bottom */
+.content.scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
 #editSection { display: none; }

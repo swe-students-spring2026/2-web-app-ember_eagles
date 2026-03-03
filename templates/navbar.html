@@ -1,0 +1,10 @@
+<!--don't kow how to use templates yet. Supposedly can
+    be added to other html files to avoid copy-pasting 
+    the same navbar code. needs flask? -->
+
+<div class="navbar">
+  <a href="{{ url_for('home') }}" class="nav-btn">Home</a>
+  <a href="{{ url_for('post') }}" class="nav-btn">Post</a>
+  <a href="{{ url_for('profile') }}" class="nav-btn">Profile</a>
+  <a href="{{ url_for('groups') }}" class="nav-btn">Groups</a>
+</div>
