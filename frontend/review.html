@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Write Review</title>
+    <link rel="stylesheet" href="globals.css" />
+  </head>
+  <body>
+    <div class="phone">
+      <div class="header">Write Review</div>
+
+      <div class="content scroll">
+        <form method="POST" action="{{ url_for('review_post') }}">
+
+          <!-- Restaurant Name -->
+          <label>Restaurant Name</label>
+          <input
+            type="text"
+            name="restaurant_name"
+            class="input-field"
+            required
+          />
+
+          <!-- Address -->
+          <label>Address</label>
+          <input
+            type="text"
+            name="address"
+            class="input-field"
+            required
+          />
+
+          <!-- Stars -->
+          <label>Stars</label>
+          <div style="margin: 10px 0;">
+            <select name="rating" class="input-field">
+              <option value="5">★★★★★</option>
+              <option value="4">★★★★</option>
+              <option value="3">★★★</option>
+              <option value="2">★★</option>
+              <option value="1">★</option>
+            </select>
+          </div>
+
+          <!-- Comments -->
+          <label>Comments</label>
+          <textarea
+            name="review_text"
+            class="input-field"
+            style="height: 100px;"
+            required
+          ></textarea>
+
+          <!-- Group Selection -->
+          <label>Group</label>
+          <select name="group" class="input-field">
+            {% for g in groups %}
+              <option value="{{ g._id }}">{{ g.name }}</option>
+            {% endfor %}
+          </select>
+
+          <!-- Submit -->
+          <button type="submit" class="btn">Submit</button>
+        </form>
+      </div>
+
+      <div class="navbar">
+        <button class="nav-btn">Home</button>
+        <button class="nav-btn">Post</button>
+        <button class="nav-btn">Profile</button>
+        <button class="nav-btn">Groups</button>
+      </div>
+    </div>
+  </body>
+</html>
