@@ -1,3 +1,9 @@
+<!-- TLDR: 
+    1. filter not implemented (decided to abaondon it)
+    2. insertion of variables such as restaurant name, rating, and address need to be tested with backend integration
+    3. currently, the reviews are just dummy placeholders. Need backend mongodb to dynamically insert them.
+ -->
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -10,31 +16,27 @@
     <div class="phone">
       <div class="content scroll">
         <!-- Top info section -->
-         <!-- TODOs: 
-            1. allow dynamic insertion of details (address, image, name, etc.)
-            2. format this section to be left leaning
-        -->
+
         <div class="restaurant-top">
           <div class="restaurant-image">
             <img
-              src="/images/placeholder.png"
+              src="/images/restaurant-icon.png"
               alt="Restaurant Image"
-              style="width: 100%; height: 100%; object-fit: cover;"
+              style="width: 100%; height: 100%; object-fit: cover"
             />
+            <!--image from https://www.freeiconspng.com/img/4874#google_vignette-->
           </div>
 
           <div class="restaurant-info">
-            <div class="restaurant-name">Restaurant Name</div>
-            <div class="restaurant-address">
-              ### Street Name, City, State ZIP#
-            </div>
+            <div class="restaurant-name">{{ restaurant.name }}</div>
+            <div class="restaurant-avg-rating">{{ restaurant.avg_rating }}</div>
+            <div class="restaurant-address">{{ restaurant.address }}</div>
           </div>
         </div>
 
-        <h2 class="section-title">Reviews</h2>
+        <h2 class="section-title">Reviews ({{ restaurant.review_count }})</h2>
 
         <!-- TODO?: filter? - not specified in our prototype -->
-
         <!-- TODO: implement Actual Reviews -->
         <p>Item 1</p>
         <p>Item 2</p>
