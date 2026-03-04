@@ -1,64 +1,62 @@
-<!-- TLDR: 
-    1. filter not implemented (decided to abaondon it)
-    2. insertion of variables such as restaurant name, rating, and address need to be tested with backend integration
-    3. currently, the reviews are just dummy placeholders. Need backend mongodb to dynamically insert them.
- -->
-
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Restaurant Detail</title>
-    <link rel="stylesheet" href="globals.css" />
-  </head>
-  <body>
-    <div class="phone">
-      <div class="content scroll">
-        <!-- Top info section -->
-
-        <div class="restaurant-top">
-          <div class="restaurant-image">
-            <img
-              src="/images/restaurant-icon.png"
-              alt="Restaurant Image"
-              style="width: 100%; height: 100%; object-fit: cover"
-            />
-            <!--image from https://www.freeiconspng.com/img/4874#google_vignette-->
-          </div>
-
-          <div class="restaurant-info">
-            <div class="restaurant-name">{{ restaurant.name }}</div>
-            <div class="restaurant-avg-rating">{{ restaurant.avg_rating }}</div>
-            <div class="restaurant-address">{{ restaurant.address }}</div>
-          </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ restaurant.name }}</title>
+  <link rel="stylesheet" href="globals.css" />
+</head>
+<body>
+  <div class="phone">
+    <div class="header">{{ restaurant.name }}</div>
+    <div class="content scroll">
+      <div class="restaurant-top">
+        <div class="avatar">
+          <img src="images/restaurant-icon.png" alt="" />
         </div>
-
-        <h2 class="section-title">Reviews ({{ restaurant.review_count }})</h2>
-
-        <!-- TODO?: filter? - not specified in our prototype -->
-        <!-- TODO: implement Actual Reviews -->
-        <p>Item 1</p>
-        <p>Item 2</p>
-        <p>Item 3</p>
-        <p>Item 4</p>
-        <p>Item 5</p>
-        <p>Item 6</p>
-        <p>Item 7</p>
-        <p>Item 8</p>
-        <p>Item 9</p>
-        <p>Item 10</p>
-        <p>Item 11</p>
-        <p>Item 12</p>
+        <div class="restaurant-info">
+          <div class="username">{{ restaurant.name }}</div>
+          <div class="group-description">{% if avg_rating is not none %}{{ avg_rating }}{% else %}—{% endif %}</div>
+          <div class="group-description">{{ restaurant.address }}</div>
+        </div>
       </div>
 
-      <!-- Nav Bar -->
-      <div class="navbar">
-        <button class="nav-btn">Home</button>
-        <button class="nav-btn">Post</button>
-        <button class="nav-btn">Profile</button>
-        <button class="nav-btn">Groups</button>
+      <div class="section">
+        <h2>Reviews ({{ review_count }})</h2>
+
+      <form method="get" action="{{ url_for('restaurant_details', restaurant_id=restaurant._id) }}" class="filter-form">
+        <label class="form-label">Group</label>
+        <select name="group_id" class="form-input">
+          <option value="">All</option>
+          {% for g in filter_groups %}
+          <option value="{{ g.id }}" {% if selected_group_id == g.id %}selected{% endif %}>{{ g.name }}</option>
+          {% endfor %}
+        </select>
+        <label class="form-label">Sort</label>
+        <select name="sort" class="form-input">
+          <option value="">Default</option>
+          <option value="rating_high" {% if selected_sort == 'rating_high' %}selected{% endif %}>Highest rating</option>
+          <option value="rating_low" {% if selected_sort == 'rating_low' %}selected{% endif %}>Lowest rating</option>
+        </select>
+        <button type="submit" class="btn">Apply</button>
+      </form>
+
+      {% for r in reviews %}
+      <div class="review-card">
+        <div class="form-subtext">{{ r.author_name }} · {{ r.group_name }} · {% if r.rating is not none %}{{ r.rating }}{% else %}—{% endif %}</div>
+        <p class="form-text">{{ r.text or '' }}</p>
+      </div>
+      {% else %}
+      <p>No reviews.</p>
+      {% endfor %}
       </div>
     </div>
-  </body>
+    <div class="navbar">
+      <a href="{{ url_for('restaurant_list') }}" class="nav-btn">Home</a>
+      <a href="{{ url_for('review') }}" class="nav-btn">Post</a>
+      <a href="{{ url_for('profile') }}" class="nav-btn">Profile</a>
+      <a href="{{ url_for('groups_page') }}" class="nav-btn">Groups</a>
+    </div>
+  </div>
+</body>
 </html>

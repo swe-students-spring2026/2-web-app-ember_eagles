@@ -14,7 +14,7 @@ def create_app():
     returns: app: the Flask application object
     """
 
-    app = Flask(__name__)
+    app = Flask(__name__, template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "frontend"))
     # load flask config from env variables
     config = dotenv_values()
     app.config.from_mapping(config)
@@ -193,34 +193,49 @@ def create_app():
 
         restaurant_reviews = list(reviews.find({"restaurant_id": rid}))
 
-        # average rating
-        ratings = [r["rating"] for r in restaurant_reviews if r.get("rating") is not None]
-        avg_rating = round(sum(ratings) / len(ratings), 2) if ratings else None
-
-        # users
-        user_ids = {r["author_id"] for r in restaurant_reviews}
+        user_ids = {r.get("user_id") for r in restaurant_reviews if r.get("user_id")}
         user_map = {
             u["_id"]: u["username"]
             for u in users.find({"_id": {"$in": list(user_ids)}})
         }
-
-        # groups
-        group_ids = {r["group_id"] for r in restaurant_reviews}
+        group_ids = {r.get("group_id") for r in restaurant_reviews if r.get("group_id")}
         group_map = {
             g["_id"]: g["name"]
             for g in groups.find({"_id": {"$in": list(group_ids)}})
         }
 
         for r in restaurant_reviews:
-            r["author_name"] = user_map.get(r["author_id"], "Unknown")
-            r["group_name"] = group_map.get(r["group_id"], "Unknown")
+            r["author_name"] = user_map.get(r.get("user_id"), "Unknown")
+            r["group_name"] = group_map.get(r.get("group_id"), "Unknown")
+
+        group_filter = request.args.get("group_id", "").strip()
+        if group_filter:
+            try:
+                gid = ObjectId(group_filter)
+                restaurant_reviews = [r for r in restaurant_reviews if r.get("group_id") == gid]
+            except Exception:
+                pass
+
+        sort = request.args.get("sort", "")
+        if sort == "rating_high":
+            restaurant_reviews = sorted(restaurant_reviews, key=lambda r: (r.get("rating") is None, -(r.get("rating") or 0)))
+        elif sort == "rating_low":
+            restaurant_reviews = sorted(restaurant_reviews, key=lambda r: (r.get("rating") is None, (r.get("rating") or 0)))
+
+        filter_groups = [{"id": str(g["_id"]), "name": g["name"]} for g in groups.find({"_id": {"$in": list(group_ids)}}, {"name": 1})]
+
+        ratings = [r["rating"] for r in list(reviews.find({"restaurant_id": rid})) if r.get("rating") is not None]
+        avg_rating = round(sum(ratings) / len(ratings), 2) if ratings else None
 
         return render_template(
         "restaurant-detail.html",
         restaurant=restaurant,
         reviews=restaurant_reviews,
         avg_rating=avg_rating,
-        review_count=len(restaurant_reviews)
+        review_count=len(list(reviews.find({"restaurant_id": rid}))),
+        filter_groups=filter_groups,
+        selected_group_id=group_filter,
+        selected_sort=sort
     )
     
 # Profile routes
@@ -272,7 +287,7 @@ def create_app():
 
         review_docs = list(reviews.find({"group_id": gid}))
 
-        author_ids = {r["author_id"] for r in review_docs if "author_id" in r}
+        author_ids = {r.get("user_id") for r in review_docs if r.get("user_id")}
         rest_ids = {r["restaurant_id"] for r in review_docs if "restaurant_id" in r}
 
         user_map = {u["_id"]: u["username"]
@@ -282,7 +297,7 @@ def create_app():
                 for x in restaurants.find({"_id": {"$in": list(rest_ids)}}, {"name": 1})} if rest_ids else {}
 
         for r in review_docs:
-            r["author_name"] = user_map.get(r.get("author_id"), "Unknown")
+            r["author_name"] = user_map.get(r.get("user_id"), "Unknown")
             r["restaurant_name"] = rest_map.get(r.get("restaurant_id"), "Unknown")
 
         return render_template("group-details.html", group = group, reviews=review_docs)
