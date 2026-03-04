@@ -1,5 +1,6 @@
 import os
 import datetime
+from tokenize import group
 from flask import Flask, render_template, request, session, redirect, abort, url_for, make_response, flash
 import pymongo
 from bson.objectid import ObjectId
@@ -252,14 +253,41 @@ def create_app():
     
 # Group routes
     @app.route("/groups", methods = ["GET"])
-    def groups():
+    def groups_page():
         user_id = ObjectId(session["user_id"])
-        my_groups = list(groups.find({"members": user_id}))
+        my_groups = list(groups.find({"members": user_id},{"name": 1, "description": 1, "owner_id": 1}))
+        for g in my_groups:
+            g["member_count"] = len(g.get("members", []))
+            g["is_owner"] = (g.get("owner_id") == user_id)
         return render_template("groups.html", groups=my_groups)
     
-    @app.route("/groups/<group_id>")
+    @app.route("/groups/<group_id>", methods = ["GET"])
     def group_details(group_id):
-        return render_template("group-details.html", group_id=group_id)
+
+        user_oid = ObjectId(session["user_id"])
+        gid = ObjectId(group_id)
+
+        group = groups.find_one({"_id": gid})
+        if not group:
+            flash("Group not found.")
+            return redirect(url_for("groups_page"))
+
+        review_docs = list(reviews.find({"group_id": gid}))
+
+        author_ids = {r["author_id"] for r in review_docs if "author_id" in r}
+        rest_ids = {r["restaurant_id"] for r in review_docs if "restaurant_id" in r}
+
+        user_map = {u["_id"]: u["username"]
+                for u in users.find({"_id": {"$in": list(author_ids)}}, {"username": 1})} if author_ids else {}
+
+        rest_map = {x["_id"]: x["name"]
+                for x in restaurants.find({"_id": {"$in": list(rest_ids)}}, {"name": 1})} if rest_ids else {}
+
+        for r in review_docs:
+            r["author_name"] = user_map.get(r.get("author_id"), "Unknown")
+            r["restaurant_name"] = rest_map.get(r.get("restaurant_id"), "Unknown")
+
+        return render_template("group-details.html", group = group, reviews=review_docs)
     
     @app.route("/groups/<group_id>/leave", methods=["POST"])
     def leave_group(group_id):
@@ -270,7 +298,7 @@ def create_app():
         group = groups.find_one({"_id": gid})
         if not group:
             flash("Group not found.")
-            return redirect(url_for("groups"))
+            return redirect(url_for("groups_page"))
 
         if group.get("owner_id") == user_oid:
             flash("Group owner cannot leave the group.")
@@ -282,7 +310,7 @@ def create_app():
         )
 
         flash("You have left the group.")
-        return redirect(url_for("groups"))
+        return redirect(url_for("groups_page"))
 
     @app.route("/create_group", methods = ["GET"])
     def create_group():
@@ -306,7 +334,7 @@ def create_app():
             "members": [owner_id]
         })
         flash("Group created successfully.")
-        return redirect(url_for("groups"))
+        return redirect(url_for("groups_page"))
     
     @app.route("/join_group", methods = ["GET"])
     def join_group_form():
@@ -340,7 +368,7 @@ def create_app():
         else:
             flash("Joined group successfully.")
 
-        return redirect(url_for("groups"))
+        return redirect(url_for("groups_page"))
     
     # Restaurant review routes
     @app.route("/review", methods=["GET"])
