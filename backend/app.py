@@ -156,10 +156,6 @@ def create_app():
         session.clear()
         return redirect(url_for("login"))
     
-    @app.route("/signup", methods = ["GET"])
-    def signup():
-        return render_template("signup.html")
-    
     @app.route("/signup", methods = ["POST"])
     def signup_post():
         username = request.form.get("username", "").strip()
@@ -230,24 +226,26 @@ def create_app():
 # Profile routes
     @app.route("/profile", methods = ["GET"])
     def profile():
-        return render_template("profile.html", username=session["username"])
+        user_oid = ObjectId(session["user_id"])
+        user = users.find_one({"_id": user_oid}, {"username": 1, "password": 1})
+        return render_template("profile.html", user=user)
     
-    @app.route("/profile/edit", methods = ["GET"])
-    def profile_edit_get():
-        return render_template("edit-profile.html")
-    
-    @app.route("/profile/edit", methods = ["POST"])
+    @app.route("/profile", methods = ["POST"])
     def profile_edit():
-        new_username = request.form.get("username", "").strip()
-        new_password = request.form.get("password", "")
-
-        if not new_username or not new_password:
+        user_oid = ObjectId(session["user_id"])
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "").strip()
+        if not username or not password:
             flash("Please enter username and password.")
             return redirect(url_for("profile"))
 
-        user_id = session["user_id"]
-        users.update_one({"_id": ObjectId(user_id)}, {"$set": {"username": new_username, "password": new_password}})
-        session["username"] = new_username
+        existing = users.find_one({"username": username, "_id": {"$ne": user_oid}})
+        if existing:
+            flash("Username already taken.")
+            return redirect(url_for("profile"))
+        
+        users.update_one({"_id": user_oid}, {"$set": {"username": username, "password": password}})
+        session["username"] = username
         flash("Profile updated successfully.")
         return redirect(url_for("profile"))
     
