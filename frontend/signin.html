@@ -9,27 +9,44 @@
 <body>
 
 <div class="wrapper">
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="flash">
+        {% for msg in messages %}
+          <p>{{ msg }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
   <div class="forms" id="formContainer">
 
     <div class="card">
       <h1>Welcome Back!</h1>
-      <input type="text" class="input-field" placeholder="username">
-      <input type="password" class="input-field" placeholder="password">
-      <button class="btn">Login</button>
+
+      <form method="POST" action="/login">
+        <input name="username" type="text" class="input-field" placeholder="username">
+        <input name="password" type="password" class="input-field" placeholder="password">
+        <button class="btn">Login</button>
+      </form>
+      
       <div class="switch-text">
         Don't have an account? <br>
-        <span onclick="showSignup()">Sign Up</span>
+        <span onclick="signup()">Sign Up</span>
       </div>
     </div>
 
     <div class="card">
       <h1>New Here?</h1>
-      <input type="text" class="input-field" placeholder="username">
-      <input type="password" class="input-field" placeholder="password">
-      <button class="btn">Sign Up</button>
+      <form method="POST" action="/signup">
+        <input name="username" type="text" class="input-field" placeholder="username">
+        <input name="password" type="password" class="input-field" placeholder="password">
+        <button class="btn">Sign Up</button>
+      </form>
       <div class="switch-text">
         Have an account? <br>
-        <span onclick="showLogin()">Login</span>
+        <span onclick="login()">Login</span>
       </div>
     </div>
 
@@ -37,10 +54,10 @@
 </div>
 
 <script>
-function showSignup() {
+function signup() {
   document.getElementById("formContainer").style.transform = "translateX(-320px)";
 }
-function showLogin() {
+function login() {
   document.getElementById("formContainer").style.transform = "translateX(0)";
 }
 </script>
