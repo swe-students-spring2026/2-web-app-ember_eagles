@@ -14,36 +14,22 @@
 
 <div class="content scroll">
 
-<button onclick="location.href='/join_group'">
-Join Group
-</button>
+<button onclick="location.href='/join_group'">Join Group</button>
 
 <div class="search-container">
   <input type="text" placeholder="Search groups..." class="search-input">
 </div>
 
-<!--Groups from backend-->
-{% for group in groups %}
-
+<!-- Group Cards -->
+{% for g in groups %}
 <div class="group-card">
-
-<h3>{{ group.name }}</h3>
-
-<p>{{ group.member_count }} Members</p>
-
-<button
-  class="group-btn"
-  onclick="window.location.href='/groups/{{ group._id }}'">
-  View
-</button>
-
+  <h3>{{ g.name }}</h3>
+  <p>{{ g.member_count }} Members</p>
+  <a href="/groups/{{ g._id }}" class="group-btn">View</a>
 </div>
-
-  {% endfor %}
-
-  {% if groups|length == 0 %}
-  <p>You are not in any groups.</p>
-  {% endif %}
+{% else %}
+<p class="form-text">You haven't joined any groups yet. <a href="/join_group">Join a group</a> or <a href="/create_group">create one</a>.</p>
+{% endfor %}
 
 </div>
 

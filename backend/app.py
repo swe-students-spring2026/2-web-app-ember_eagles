@@ -75,22 +75,40 @@ def create_app():
                 return redirect(url_for("restaurant_list"))
 
             group_ids_to_use = [gid]
+            restaurant_ids = reviews.distinct(
+                "restaurant_id",
+                {"group_id": {"$in": group_ids_to_use}}
+            )
+            review_filter = {"group_id": {"$in": group_ids_to_use}, "restaurant_id": {"$in": restaurant_ids}}
         else:
             group_ids_to_use = my_group_ids
-
-        if not group_ids_to_use:
-            return render_template(
-                "restaurant-list.html",
-                username=session.get("username"),
-                groups=my_groups,
-                selected_group_id=selected_group_id,
-                restaurants=[]
-            )
-
-        restaurant_ids = reviews.distinct(
-            "restaurant_id",
-            {"group_id": {"$in": group_ids_to_use}}
-        )
+            if my_group_ids:
+                restaurant_ids = reviews.distinct("restaurant_id", {
+                    "$or": [
+                        {"group_id": {"$in": my_group_ids}},
+                        {"group_id": None},
+                        {"group_id": {"$exists": False}}
+                    ]
+                })
+                review_filter = {
+                    "$or": [
+                        {"group_id": {"$in": my_group_ids}},
+                        {"group_id": None},
+                        {"group_id": {"$exists": False}}
+                    ],
+                    "restaurant_id": {"$in": restaurant_ids}
+                }
+            else:
+                restaurant_ids = reviews.distinct("restaurant_id", {
+                    "$or": [
+                        {"group_id": None},
+                        {"group_id": {"$exists": False}}
+                    ]
+                })
+                review_filter = {
+                    "restaurant_id": {"$in": restaurant_ids},
+                    "$or": [{"group_id": None}, {"group_id": {"$exists": False}}]
+                } if restaurant_ids else {}
 
         if not restaurant_ids:
             return render_template(
@@ -100,9 +118,9 @@ def create_app():
                 selected_group_id=selected_group_id,
                 restaurants=[]
             )
-        
+
         review_docs = list(reviews.find(
-            {"group_id": {"$in": group_ids_to_use}, "restaurant_id": {"$in": restaurant_ids}},
+            review_filter,
             {"restaurant_id": 1, "rating": 1}
         ))
         rating_sum = {}

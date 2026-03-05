@@ -25,7 +25,6 @@
     <div id="profileSection">
       <div class="avatar"></div>
       <div class="username" id="displayUsername">{{ user.username }}</div>
-      <div class="password" id="displayPassword">{{ user.password }}</div>
       <a class="btn" href="/review">View Own Reviews</a>
       <a class="btn" href="/groups">View Joined Groups</a>
       <button class="btn" onclick="showEdit()">Edit</button>
@@ -35,7 +34,7 @@
       <div class="avatar"></div>
       <form method="POST" action="/profile">
         <input name="username" type="text" id="editUsername" class="input-field" value="{{ user.username }}">
-        <input name="password" type="password" id="editPassword" class="input-field" value="{{ user.password }}">
+        <input name="password" type="password" id="editPassword" class="input-field" placeholder="New password" autocomplete="new-password">
         <button class="btn" type="submit">Save</button>
         <button class="btn" type="button" onclick="cancelEdit()">Cancel</button>
       </form>
@@ -57,7 +56,7 @@ function showEdit() {
   document.getElementById("editSection").style.display = "block";
   document.getElementById("pageTitle").textContent = "Edit Profile";
   document.getElementById("editUsername").value = document.getElementById("displayUsername").textContent;
-  document.getElementById("editPassword").value = document.getElementById("displayPassword").textContent;
+  document.getElementById("editPassword").value = "";
 }
 
 function cancelEdit() {
