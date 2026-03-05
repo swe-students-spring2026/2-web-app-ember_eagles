@@ -132,7 +132,7 @@ def create_app():
 # Authentication routes
     @app.route("/login", methods = ["GET"])
     def login():
-        return render_template("login.html")
+        return render_template("signin.html")
     
     @app.route("/login", methods = ["POST"])
     def login_post():
@@ -191,7 +191,38 @@ def create_app():
             flash("Restaurant not found.")
             return redirect(url_for("restaurant_list"))
 
-        restaurant_reviews = list(reviews.find({"restaurant_id": rid}))
+        selected_group_id = request.args.get("group_id", "").strip()
+        selected_sort = request.args.get("sort", "").strip()
+
+        user_oid = ObjectId(session["user_id"])
+        filter_groups = list(groups.find({"members": user_oid}, {"name": 1}))
+
+        review_filter = {"restaurant_id": rid}
+
+        if selected_group_id:
+            try:
+                gid = ObjectId(selected_group_id)
+            except Exception:
+                flash("Invalid group filter.")
+                return redirect(url_for("restaurant_details", restaurant_id=restaurant_id))
+
+            my_group_ids = [g["_id"] for g in filter_groups]
+            if gid not in my_group_ids:
+                flash("You are not a member of this group.")
+                return redirect(url_for("restaurant_details", restaurant_id=restaurant_id))
+
+            review_filter["group_id"] = gid
+
+        cursor = reviews.find(review_filter)
+
+        if selected_sort == "rating_high":
+            cursor = cursor.sort("rating", -1)
+        elif selected_sort == "rating_low":
+            cursor = cursor.sort("rating", 1)
+        else:
+            cursor = cursor.sort("created_at", -1)
+
+        restaurant_reviews = list(cursor)
 
         # average rating
         ratings = [r["rating"] for r in restaurant_reviews if r.get("rating") is not None]
@@ -220,7 +251,10 @@ def create_app():
         restaurant=restaurant,
         reviews=restaurant_reviews,
         avg_rating=avg_rating,
-        review_count=len(restaurant_reviews)
+        review_count=len(restaurant_reviews),
+        filter_groups=filter_groups,
+        selected_group_id=selected_group_id,
+        selected_sort=selected_sort
     )
     
 # Profile routes
