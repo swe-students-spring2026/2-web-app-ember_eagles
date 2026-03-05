@@ -34,8 +34,8 @@
     <div id="editSection">
       <div class="avatar"></div>
       <form method="POST" action="/profile">
-        <input type="text" id="editUsername" class="input-field" placeholder="Username" value="{{ user.username }}">
-        <input type="password" id="editPassword" class="input-field" placeholder="Password" value="{{ user.password }}">
+        <input name="username" type="text" id="editUsername" class="input-field" value="{{ user.username }}">
+        <input name="password" type="password" id="editPassword" class="input-field" value="{{ user.password }}">
         <button class="btn" type="submit">Save</button>
         <button class="btn" type="button" onclick="cancelEdit()">Cancel</button>
       </form>
@@ -43,12 +43,12 @@
     </div>
 
   </div>
-  <div class="navbar">
-    <button class="nav-btn">Home</button>
-    <button class="nav-btn">Post</button>
-    <button class="nav-btn">Profile</button>
-    <button class="nav-btn">Groups</button>
-  </div>
+  div class="navbar">
+        <button class="nav-btn" onclick="location.href='/'">Home</button>
+        <button class="nav-btn" onclick="location.href='/review/new'">Post</button>
+        <button class="nav-btn" onclick="location.href='/profile'">Profile</button>
+        <button class="nav-btn" onclick="location.href='/groups'">Groups</button>
+      </div>
 </div>
 
 <script>
