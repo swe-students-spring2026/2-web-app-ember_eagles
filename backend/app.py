@@ -15,7 +15,10 @@ def create_app():
     returns: app: the Flask application object
     """
 
-    app = Flask(__name__, template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "frontend"))
+    app = Flask(__name__,
+        template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "frontend"),
+        static_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "frontend"),
+        static_url_path="")
     # load flask config from env variables
     config = dotenv_values()
     app.config.from_mapping(config)
