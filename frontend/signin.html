@@ -20,7 +20,7 @@
     {% endif %}
   {% endwith %}
 
-  <div class="forms" id="formContainer">
+  <div class="forms" id="formContainer" {% if initial_form == 'signup' %}style="transform: translateX(-320px);"{% endif %}>
 
     <div class="card">
       <h1>Welcome Back!</h1>

@@ -21,7 +21,22 @@ User stories can be found on the repository issues page
 
 ## Steps necessary to run the software
 
-See instructions. Delete this line and place instructions to download, configure, and run the software here.
+1. Clone the repo and cd into it
+2. Install the required packages:
+pip3 install flask pymongo python-dotenv werkzeug
+
+
+3. Create a file called `.env` inside the `backend/` folder and add the credentials (ask a team member for these)
+4. If you're on a Mac, you may need to fix SSL certificates or you'll get a MongoDB connection error:
+/Applications/Python\ 3.11/Install\ Certificates.command
+
+
+5. Run the app:
+python3 backend/app.py
+
+
+6. Open your browser and go to `http://127.0.0.1:5000`
+
 
 ## Task boards
 

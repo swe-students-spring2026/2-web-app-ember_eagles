@@ -29,9 +29,10 @@
           </p>
 
           <form method="POST" action="/create_group">
+
             <label for="group-name" class="form-label">Group Name</label>
             <input
-              name = "group_name"
+              name="group_name"
               type="text"
               id="group-name"
               class="form-input"
@@ -40,17 +41,17 @@
 
             <label for="group-description" class="form-label">Description</label>
             <textarea
-              name = "group_description"
+              name="group_description"
               id="group-description"
               class="form-textarea"
               placeholder="Describe what this group is about..."
               rows="4"
             ></textarea>
-          </form>
-          
 
-          <button class="primary-btn" type="submit">Create Group</button>
-          <button class="secondary-btn" type="button" onclick="location.href='/groups'">Cancel</button>
+            <button class="primary-btn" type="submit">Create Group</button>
+            <button class="secondary-btn" type="button" onclick="location.href='/groups'">Cancel</button>
+
+          </form>
 
         </div>
       </div>
