@@ -330,8 +330,13 @@ def create_app():
             flash("Group not found.")
             return redirect(url_for("groups_page"))
 
-        review_docs = list(reviews.find({"group_id": gid}))
+        # --- NEW: convert member ObjectIds to usernames ---
+        member_ids = group.get("members", [])
+        member_docs = list(users.find({"_id": {"$in": member_ids}}, {"username": 1}))
+        group["members"] = [u["username"] for u in member_docs]
 
+        # Reviews mapping (unchanged)
+        review_docs = list(reviews.find({"group_id": gid}))
         author_ids = {r["author_id"] for r in review_docs if "author_id" in r}
         rest_ids = {r["restaurant_id"] for r in review_docs if "restaurant_id" in r}
 

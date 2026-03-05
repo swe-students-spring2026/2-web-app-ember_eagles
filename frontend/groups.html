@@ -1,45 +1,46 @@
 <!doctype html>
 <html lang="en">
-  <!-- Boilerplate -->
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Groups</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='globals.css') }}" />
-  </head>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Groups</title>
+<link rel="stylesheet" href="globals.css">
+</head>
 
-  <body>
-    <div class="phone">
-      <div class="header">Groups</div>
+<body>
+<div class="phone">
 
-      <!-- Scrollable Content -->
-      <div class="content scroll">
+<div class="header">Groups</div>
 
-        <!-- Filter / Search -->
-        <div class="search-container">
-          <input type="text" placeholder="Search groups..." class="search-input" />
-        </div>
+<div class="content scroll">
 
-        <!-- Group Cards -->
-        {% for g in groups %}
-        <div class="group-card">
-          <h3>{{ g.name }}</h3>
-          <p>{{ g.member_count }} Members</p>
-          <a href="/groups/{{ g._id }}" class="group-btn">View</a>
-        </div>
-        {% else %}
-        <p class="form-text">You haven't joined any groups yet. <a href="/join_group">Join a group</a> or <a href="/create_group">create one</a>.</p>
-        {% endfor %}
+<button onclick="location.href='/join_group'">Join Group</button>
 
-      </div>
+<div class="search-container">
+  <input type="text" placeholder="Search groups..." class="search-input">
+</div>
 
-      <!-- Nav Bar -->
-      <div class="navbar">
-        <button class="nav-btn" onclick="location.href='/'">Home</button>
-        <button class="nav-btn" onclick="location.href='/review/new'">Post</button>
-        <button class="nav-btn" onclick="location.href='/profile'">Profile</button>
-        <button class="nav-btn" onclick="location.href='/groups'">Groups</button>
-      </div>
-    </div>
-  </body>
+<!-- Group Cards -->
+{% for g in groups %}
+<div class="group-card">
+  <h3>{{ g.name }}</h3>
+  <p>{{ g.member_count }} Members</p>
+  <a href="/groups/{{ g._id }}" class="group-btn">View</a>
+</div>
+{% else %}
+<p class="form-text">You haven't joined any groups yet. <a href="/join_group">Join a group</a> or <a href="/create_group">create one</a>.</p>
+{% endfor %}
+
+</div>
+
+<!-- Nav Bar -->
+<div class="navbar">
+<button class="nav-btn" onclick="location.href='/'">Home</button>
+<button class="nav-btn" onclick="location.href='/review/new'">Post</button>
+<button class="nav-btn" onclick="location.href='/profile'">Profile</button>
+<button class="nav-btn" onclick="location.href='/groups'">Groups</button>
+</div>
+
+</div>
+</body>
 </html>
