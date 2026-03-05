@@ -101,15 +101,6 @@ def create_app():
                 restaurants=[]
             )
 
-        if not restaurant_ids:
-            return render_template(
-                "restaurant-list.html",
-                username=session.get("username"),
-                groups=my_groups,
-                selected_group_id=selected_group_id,
-                restaurants=[]
-            )
-
         review_docs = list(reviews.find(
             {"group_id": {"$in": group_ids_to_use}, "restaurant_id": {"$in": restaurant_ids}},
             {"restaurant_id": 1, "rating": 1}
