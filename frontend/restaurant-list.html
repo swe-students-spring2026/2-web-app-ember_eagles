@@ -1,41 +1,27 @@
-<!--TLDR: 
-    1.filter not yet implemented
-    2.currently, the resturants cards are just placeholders. Need backend mongodb to dynamically insert them.
-    3. (line30) need to add a description/comment of the last posted review
--->
-
 <!doctype html>
 <html lang="en">
-  <!-- Boilerplate -->
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Restaurant List</title>
+    <title>Restaurants</title>
     <link rel="stylesheet" href="globals.css" />
   </head>
-
   <body>
     <div class="phone">
       <div class="header header-left">Restaurants</div>
-
-      <!-- allows scrolling -->
       <div class="content scroll">
-        <!-- TODO: filter (may abaondon it, but could also just do a simple filter via group later) -->
-
-        <!-- attempt at backend integration -->
         {% for r in restaurants %}
-        <div class="restaurant-card">
-          <div class="restaurant-title">{{ r.name }}</div>
-          <div class="restaurant-rating">{{ "★" * r.avg_rating|round|int }}{{ "☆" * (5 - (r.avg_rating|round|int)) }}</div>
-          <div class="restaurant-description">{{ Lorem ipsum, dolor sit amet. }}</div>
-          <div class="restaurant-user">Last Posted by {{ r.last_user }}</div>
-          <div class="restaurant-date">{{ r.last_review_date }}</div>
-        </div>
+        <a href="/restaurant/{{ r._id }}" class="restaurant-card-link">
+          <div class="restaurant-card">
+            <div class="restaurant-title">{{ r.name }}</div>
+            <div class="restaurant-rating">{% for i in range(5) %}{% if r.avg_rating and i < (r.avg_rating|round|int) %}★{% else %}☆{% endif %}{% endfor %}</div>
+            <div class="restaurant-description">{{ r.address }}</div>
+          </div>
+        </a>
+        {% else %}
+        <p class="form-text">No restaurants yet. Post a review to add one.</p>
         {% endfor %}
-
       </div>
-
-      <!-- Nav Bar -->
       <div class="navbar">
         <button class="nav-btn" onclick="location.href='/'">Home</button>
         <button class="nav-btn" onclick="location.href='/review/new'">Post</button>
