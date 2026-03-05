@@ -51,12 +51,12 @@
       {% endfor %}
       </div>
     </div>
-    <div class="navbar">
-      <a href="{{ url_for('restaurant_list') }}" class="nav-btn">Home</a>
-      <a href="{{ url_for('review') }}" class="nav-btn">Post</a>
-      <a href="{{ url_for('profile') }}" class="nav-btn">Profile</a>
-      <a href="{{ url_for('groups_page') }}" class="nav-btn">Groups</a>
-    </div>
+    div class="navbar">
+        <button class="nav-btn" onclick="location.href='/'">Home</button>
+        <button class="nav-btn" onclick="location.href='/review/new'">Post</button>
+        <button class="nav-btn" onclick="location.href='/profile'">Profile</button>
+        <button class="nav-btn" onclick="location.href='/groups'">Groups</button>
+      </div>
   </div>
 </body>
 </html>
