@@ -24,10 +24,10 @@
 
         <!-- attempt at backend integration -->
         {% for r in restaurants %}
-        <div class="restaurant-card">
+        <div class="restaurant-card" onclick="location.href='/restaurant/{{ r._id }}'" style="cursor:pointer;">
           <div class="restaurant-title">{{ r.name }}</div>
           <div class="restaurant-rating">{{ "★" * r.avg_rating|round|int }}{{ "☆" * (5 - (r.avg_rating|round|int)) }}</div>
-          <div class="restaurant-description">{{ Lorem ipsum, dolor sit amet. }}</div>
+          <div class="restaurant-description">{{ r.last_review_text }}</div>
           <div class="restaurant-user">Last Posted by {{ r.last_user }}</div>
           <div class="restaurant-date">{{ r.last_review_date }}</div>
         </div>
