@@ -17,10 +17,10 @@
   
   <body>
     <div class="phone">
-      <div class="header">Write Review</div>
+      <div class="header">{% if review %}Edit Review{% else %}Write Review{% endif %}</div>
 
       <div class="content scroll">
-        <form method="POST" action="/review/new">
+        <form method="POST" action="{% if review %}/review/{{ review._id }}/edit{% else %}/review/new{% endif %}">
 
           <!-- Restaurant Name -->
           <label>Restaurant Name</label>
@@ -28,6 +28,7 @@
             type="text"
             name="restaurant_name"
             class="input-field"
+            value="{{ review.restaurant_name if review else '' }}"
             required
           />
 
@@ -37,6 +38,7 @@
             type="text"
             name="address"
             class="input-field"
+            value="{{ review.address if review else '' }}"
             required
           />
 
@@ -44,11 +46,11 @@
           <label>Stars</label>
           <div style="margin: 10px 0;">
             <select name="rating" class="input-field">
-              <option value="5">★★★★★</option>
-              <option value="4">★★★★</option>
-              <option value="3">★★★</option>
-              <option value="2">★★</option>
-              <option value="1">★</option>
+              <option value="5" {% if review and review.rating == 5 %}selected{% endif %}>★★★★★</option>
+              <option value="4" {% if review and review.rating == 4 %}selected{% endif %}>★★★★</option>
+              <option value="3" {% if review and review.rating == 3 %}selected{% endif %}>★★★</option>
+              <option value="2" {% if review and review.rating == 2 %}selected{% endif %}>★★</option>
+              <option value="1" {% if review and review.rating == 1 %}selected{% endif %}>★</option>
             </select>
           </div>
 
@@ -59,18 +61,18 @@
             class="input-field"
             style="height: 100px;"
             required
-          ></textarea>
+          >{{ review.text if review else '' }}</textarea>
 
           <!-- Group Selection -->
           <label>Group</label>
           <select name="group" class="input-field">
             {% for g in groups %}
-              <option value="{{ g._id }}">{{ g.name }}</option>
+              <option value="{{ g._id }}" {% if review and review.group_id and str(review.group_id) == str(g._id) %}selected{% endif %}>{{ g.name }}</option>
             {% endfor %}
           </select>
 
           <!-- Submit -->
-          <button type="submit" class="btn">Submit</button>
+          <button type="submit" class="btn">{% if review %}Save changes{% else %}Submit{% endif %}</button>
         </form>
       </div>
 

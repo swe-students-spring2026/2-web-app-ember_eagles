@@ -411,7 +411,11 @@ def create_app():
     @app.route("/review", methods=["GET"])
     def my_reviews():
         user_id = ObjectId(session["user_id"])
-        my_reviews = list(reviews.find({"author_id": user_id})) # needed to change from user_id to author_id
+        my_reviews = list(reviews.find({"author_id": user_id}))
+        rest_ids = [r["restaurant_id"] for r in my_reviews if r.get("restaurant_id")]
+        rest_map = {x["_id"]: x["name"] for x in restaurants.find({"_id": {"$in": rest_ids}}, {"name": 1})} if rest_ids else {}
+        for r in my_reviews:
+            r["restaurant_name"] = rest_map.get(r.get("restaurant_id"), "Unknown")
         return render_template("my-reviews.html", reviews=my_reviews)
     
     @app.route("/review/new", methods=["GET"])
@@ -486,7 +490,8 @@ def create_app():
         if not review:
             flash("Review not found.")
             return redirect(url_for("my_reviews"))
-
+        rest = restaurants.find_one({"_id": review["restaurant_id"]}, {"name": 1}) if review.get("restaurant_id") else None
+        review["restaurant_name"] = rest["name"] if rest else "Unknown"
         return render_template("view-review.html", review=review)
     
     @app.route("/review/<review_id>/edit", methods=["GET"])
@@ -501,6 +506,11 @@ def create_app():
         if not review:
             flash("Review not found.")
             return redirect(url_for("my_reviews"))
+        if review.get("author_id") != ObjectId(session["user_id"]):
+            flash("You can only edit your own reviews.")
+            return redirect(url_for("my_reviews"))
+        rest = restaurants.find_one({"_id": review["restaurant_id"]}, {"name": 1}) if review.get("restaurant_id") else None
+        review["restaurant_name"] = rest["name"] if rest else "Unknown"
         my_groups = list(groups.find({"members": ObjectId(session["user_id"])}, {"name": 1}))
         return render_template("review.html", review=review, groups=my_groups)
 
@@ -511,7 +521,12 @@ def create_app():
         except Exception:
             flash("Invalid review id.")
             return redirect(url_for("my_reviews"))
-        
+
+        existing = reviews.find_one({"_id": rid, "author_id": ObjectId(session["user_id"])})
+        if not existing:
+            flash("Review not found or you can only edit your own reviews.")
+            return redirect(url_for("my_reviews"))
+
         address = request.form.get("address", "").strip()
         rating = int(request.form.get("rating", "0")) # have to make it an int. cannot do computations on str.
         restaurant_name = request.form.get("restaurant_name", "").strip()

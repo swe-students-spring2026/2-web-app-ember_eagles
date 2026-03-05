@@ -3,12 +3,47 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Write Review</title>
+    <title>My Reviews</title>
     <link rel="stylesheet" href="globals.css" />
   </head>
-  
   <body>
-    
-  </body>
+    <div class="phone">
+      <div class="header">My Reviews</div>
+      <div class="content scroll">
+        <p class="form-subtext">View own reviews.</p>
+        <p class="section-title">{{ reviews|length }} REVIEWS</p>
 
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="flash">
+              {% for msg in messages %}<p>{{ msg }}</p>{% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        {% for r in reviews %}
+        <div class="review-card">
+          <div class="username">{{ r.restaurant_name }}</div>
+          <div class="review-stars">{% for i in range(5) %}{% if r.rating and i < r.rating %}★{% else %}☆{% endif %}{% endfor %}</div>
+          <p class="form-text">{{ r.text or '' }}</p>
+          <div class="form-subtext">{% if r.updated_at %}{{ r.updated_at.strftime('%b %d, %Y') }}{% elif r.created_at %}{{ r.created_at.strftime('%b %d, %Y') }}{% endif %}</div>
+          <div class="review-actions">
+            <a href="/review/{{ r._id }}/edit" class="btn">Edit</a>
+            <form method="post" action="/review/{{ r._id }}/delete" style="display:inline;">
+              <button type="submit" class="btn btn-delete">Delete</button>
+            </form>
+          </div>
+        </div>
+        {% else %}
+        <p class="form-text">No reviews yet. <a href="/review/new">Write one</a>.</p>
+        {% endfor %}
+      </div>
+      <div class="navbar">
+        <button class="nav-btn" onclick="location.href='/'">Home</button>
+        <button class="nav-btn" onclick="location.href='/review/new'">Post</button>
+        <button class="nav-btn" onclick="location.href='/profile'">Profile</button>
+        <button class="nav-btn" onclick="location.href='/groups'">Groups</button>
+      </div>
+    </div>
+  </body>
 </html>
