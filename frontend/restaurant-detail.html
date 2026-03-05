@@ -24,12 +24,12 @@
       <div class="section">
         <h2>Reviews ({{ review_count }})</h2>
 
-      <form method="get" action="{{ url_for('restaurant_details', restaurant_id=restaurant._id) }}" class="filter-form">
+      <form method="get" action="/restaurant/{{ restaurant._id }}" class="filter-form">
         <label class="form-label">Group</label>
         <select name="group_id" class="form-input">
           <option value="">All</option>
           {% for g in filter_groups %}
-          <option value="{{ g.id }}" {% if selected_group_id == g.id %}selected{% endif %}>{{ g.name }}</option>
+          <option value="{{ g._id }}" {% if selected_group_id == (g._id|string) %}selected{% endif %}>{{ g.name }}</option>
           {% endfor %}
         </select>
         <label class="form-label">Sort</label>
@@ -51,12 +51,12 @@
       {% endfor %}
       </div>
     </div>
-    div class="navbar">
+    <div class="navbar">
         <button class="nav-btn" onclick="location.href='/'">Home</button>
         <button class="nav-btn" onclick="location.href='/review/new'">Post</button>
         <button class="nav-btn" onclick="location.href='/profile'">Profile</button>
         <button class="nav-btn" onclick="location.href='/groups'">Groups</button>
-      </div>
+    </div>
   </div>
 </body>
 </html>

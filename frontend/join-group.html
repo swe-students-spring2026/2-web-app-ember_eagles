@@ -12,33 +12,42 @@
       <div class="header">Join Group</div>
 
       <div class="content">
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="flash">
+              {% for msg in messages %}
+                <p>{{ msg }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+        
         <div class="form-container">
+          <form method="POST" action="/join_group">
 
-          <label for="invite-code" class="form-label">Enter Invite Code</label>
+            <label for="invite-code" class="form-label">Enter Invite Code</label>
           
-          <p class="form-text">
-            Ask your group admin for the code to join their restaurant review group
-          </p>
+            <p class="form-text">
+              Ask your group admin for the code to join their restaurant review group
+            </p>
 
-          <input
-            type="text"
-            id="invite-code"
-            class="form-input"
-            placeholder="Enter 6-character code"
-            maxlength="6"
-          />
+            <input
+              name="group_id"
+              type="text"
+              id="invite-code"
+              class="form-input"
+              placeholder="Enter 6-character code"
+              maxlength="6"
+            />
 
-          <p class="form-subtext">
-            Codes are 6 characters and case-insensitive.<br>
-            Example: NYU123
-          </p>
+            <p class="form-subtext">
+              Codes are 6 characters and case-insensitive.<br>
+              Example: NYU123
+            </p>
 
-          <button class="primary-btn">Join Group</button>
-
-          <button class="secondary-btn">
-            Create a new group instead
-          </button>
-
+            <button class="primary-btn" type = "submit">Join Group</button>
+            <a class="secondary-btn" href="/create_group">Create a new group instead</a>
+          </form>
         </div>
       </div>
 
