@@ -51,7 +51,7 @@ def create_app():
     def restaurant_list():
         user_id = session.get("user_id")
         if not user_id:
-            return redirect(url_for("login_page"))
+            return redirect(url_for("login"))
 
         user_oid = ObjectId(user_id)
 
@@ -180,7 +180,7 @@ def create_app():
     
     @app.route('/signup', methods=['GET']) # this serves as the actual signup HTML form to the user
     def signup():
-        return render_template('signup.html')
+        return render_template('signin.html', initial_form='signup')
 
     @app.route("/signup", methods = ["POST"])
     def signup_post():
