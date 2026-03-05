@@ -433,9 +433,14 @@ a.group-btn {
 }
 
 .filter-form {
+  width: 100%;
   margin-bottom: 16px;
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   gap: 8px;
+}
+.filter-form .restaurant-card-link {
+  width: 100%;
+  min-width: 0;
 }
