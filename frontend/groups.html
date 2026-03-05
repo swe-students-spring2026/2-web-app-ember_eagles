@@ -1,59 +1,60 @@
 <!doctype html>
 <html lang="en">
-  <!-- Boilerplate -->
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Groups</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='globals.css') }}" />
-  </head>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Groups</title>
+<link rel="stylesheet" href="globals.css">
+</head>
 
-  <body>
-    <div class="phone">
-      <div class="header">Groups</div>
+<body>
+<div class="phone">
 
-      <!-- Scrollable Content -->
-      <div class="content scroll">
+<div class="header">Groups</div>
 
-        <!-- Filter / Search -->
-        <div class="search-container">
-          <input type="text" placeholder="Search groups..." class="search-input" />
-        </div>
+<div class="content scroll">
 
-        <!-- Group Cards -->
-        <div class="group-card">
-          <h3>Foodies of Hoboken</h3>
-          <p>128 Members</p>
-          <button class="group-btn">View</button>
-        </div>
+<button onclick="location.href='/join_group'">
+Join Group
+</button>
 
-        <div class="group-card">
-          <h3>NYC Restaurant Hunters</h3>
-          <p>342 Members</p>
-          <button class="group-btn">View</button>
-        </div>
+<div class="search-container">
+  <input type="text" placeholder="Search groups..." class="search-input">
+</div>
 
-        <div class="group-card">
-          <h3>Budget Bites</h3>
-          <p>89 Members</p>
-          <button class="group-btn">View</button>
-        </div>
+<!--Groups from backend-->
+{% for group in groups %}
 
-        <div class="group-card">
-          <h3>Late Night Eats</h3>
-          <p>210 Members</p>
-          <button class="group-btn">View</button>
-        </div>
+<div class="group-card">
 
-      </div>
+<h3>{{ group.name }}</h3>
 
-      <!-- Nav Bar -->
-      <div class="navbar">
-        <button class="nav-btn" onclick="location.href='/'">Home</button>
-        <button class="nav-btn" onclick="location.href='/review/new'">Post</button>
-        <button class="nav-btn" onclick="location.href='/profile'">Profile</button>
-        <button class="nav-btn" onclick="location.href='/groups'">Groups</button>
-      </div>
-    </div>
-  </body>
+<p>{{ group.member_count }} Members</p>
+
+<button
+  class="group-btn"
+  onclick="window.location.href='/groups/{{ group._id }}'">
+  View
+</button>
+
+</div>
+
+  {% endfor %}
+
+  {% if groups|length == 0 %}
+  <p>You are not in any groups.</p>
+  {% endif %}
+
+</div>
+
+<!-- Nav Bar -->
+<div class="navbar">
+<button class="nav-btn" onclick="location.href='/'">Home</button>
+<button class="nav-btn" onclick="location.href='/review/new'">Post</button>
+<button class="nav-btn" onclick="location.href='/profile'">Profile</button>
+<button class="nav-btn" onclick="location.href='/groups'">Groups</button>
+</div>
+
+</div>
+</body>
 </html>

@@ -290,6 +290,8 @@ body {
   flex-direction: column;
   gap: 14px;
   padding: 20px;
+  max-width: 260px;
+  margin: 0 auto;
 }
 
 .form-text {
@@ -307,6 +309,7 @@ body {
 }
 
 .form-input {
+  width: 100%;
   padding: 10px;
   font-size: 16px;
   border-radius: 8px;
@@ -314,6 +317,7 @@ body {
 }
 
 .primary-btn {
+  width: 100%;
   padding: 12px;
   font-size: 16px;
   border: none;
@@ -328,6 +332,10 @@ body {
 }
 
 .secondary-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  text-decoration: none;
   padding: 10px;
   font-size: 14px;
   border-radius: 8px;

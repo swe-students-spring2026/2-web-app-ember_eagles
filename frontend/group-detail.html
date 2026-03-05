@@ -14,15 +14,10 @@
 
       <div class="content scroll">
 
-        <div class="group-image-container">
-          <img src="https://via.placeholder.com/400x200" alt="Group Image" class="group-image" />
-        </div>
-
         <div class="group-info">
-          <h2>Foodies of Hoboken</h2>
+          <h2>{{ group.name }}</h2>
           <p class="group-description">
-            A group for people who love trying new restaurants, rating dishes,
-            and sharing hidden gems around town.
+            {{ group.description }}
           </p>
         </div>
 
@@ -31,30 +26,12 @@
 
           <div class="member-scroll">
 
+            {% for member in group.members %}
             <div class="member">
               <div class="member-avatar"></div>
-              <p>Amy</p>
+              <p>{{ member }}</p>
             </div>
-
-            <div class="member">
-              <div class="member-avatar"></div>
-              <p>James</p>
-            </div>
-
-            <div class="member">
-              <div class="member-avatar"></div>
-              <p>Sara</p>
-            </div>
-
-            <div class="member">
-              <div class="member-avatar"></div>
-              <p>Leo</p>
-            </div>
-
-            <div class="member">
-              <div class="member-avatar"></div>
-              <p>Maya</p>
-            </div>
+            {% endfor %}
 
           </div>
         </div>
@@ -62,29 +39,28 @@
         <div class="section">
           <h3>Group Reviews</h3>
 
-          <div class="review-card">
-            <h4>NYC Pizza Spot</h4>
-            <p>★★★★★</p>
-            <p>Best late night slice in town!</p>
-          </div>
-
-          <div class="review-card">
-            <h4>Green Garden</h4>
-            <p>★★★★☆</p>
-            <p>Great vegetarian options and cozy atmosphere.</p>
-          </div>
-
-          <div class="review-card">
-            <h4>Sushi Central</h4>
-            <p>★★★☆☆</p>
-            <p>Fresh fish but a bit pricey.</p>
-          </div>
+          {% if reviews %}
+            {% for r in reviews %}
+            <div class="review-card">
+              <h4>{{ r.restaurant_name }}</h4>
+              <p>{{ "★" * r.rating }}</p>
+              <p>{{ r.text }}</p>
+              <small>by {{ r.author_name }}</small>
+            </div>
+            {% endfor %}
+          {% else %}
+            <p>No reviews yet.</p>
+          {% endif %}
 
         </div>
 
         <div class="group-actions">
-          <button class="invite-btn">Get Invite Code</button>
-          <button class="leave-btn">Leave Group</button>
+          <button class="invite-btn" onclick="navigator.clipboard.writeText('{{ group._id }}')">
+            Copy Invite Code
+          </button>
+          <form method="POST" action="/groups/{{ group._id }}/leave">
+            <button class="leave-btn">Leave Group</button>
+          </form>
         </div>
 
       </div>
