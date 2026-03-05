@@ -21,6 +21,7 @@
               </option>
             {% endfor %}
           </select>
+        </form>
 
         {% for r in restaurants %}
         <a href="/restaurant/{{ r._id }}" class="restaurant-card-link">
@@ -33,7 +34,7 @@
         {% else %}
         <p class="form-text">No restaurants yet. Post a review to add one.</p>
         {% endfor %}
-        </form>
+        
       </div>
       <div class="navbar">
         <button type="button" class="nav-btn" onclick="location.href='/'">Home</button>
