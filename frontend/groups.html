@@ -21,29 +21,15 @@
         </div>
 
         <!-- Group Cards -->
+        {% for g in groups %}
         <div class="group-card">
-          <h3>Foodies of Hoboken</h3>
-          <p>128 Members</p>
-          <button class="group-btn">View</button>
+          <h3>{{ g.name }}</h3>
+          <p>{{ g.member_count }} Members</p>
+          <a href="/groups/{{ g._id }}" class="group-btn">View</a>
         </div>
-
-        <div class="group-card">
-          <h3>NYC Restaurant Hunters</h3>
-          <p>342 Members</p>
-          <button class="group-btn">View</button>
-        </div>
-
-        <div class="group-card">
-          <h3>Budget Bites</h3>
-          <p>89 Members</p>
-          <button class="group-btn">View</button>
-        </div>
-
-        <div class="group-card">
-          <h3>Late Night Eats</h3>
-          <p>210 Members</p>
-          <button class="group-btn">View</button>
-        </div>
+        {% else %}
+        <p class="form-text">You haven't joined any groups yet. <a href="/join_group">Join a group</a> or <a href="/create_group">create one</a>.</p>
+        {% endfor %}
 
       </div>
 

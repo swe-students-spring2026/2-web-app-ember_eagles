@@ -172,6 +172,11 @@ body {
   color: white;
 }
 
+a.group-btn {
+  display: inline-block;
+  text-decoration: none;
+}
+
 .group-image {
   width: 100%;
   height: 200px;

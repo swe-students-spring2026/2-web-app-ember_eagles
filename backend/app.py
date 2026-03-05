@@ -327,7 +327,7 @@ def create_app():
             r["author_name"] = user_map.get(r.get("author_id"), "Unknown")
             r["restaurant_name"] = rest_map.get(r.get("restaurant_id"), "Unknown")
 
-        return render_template("group-details.html", group = group, reviews=review_docs)
+        return render_template("group-detail.html", group = group, reviews=review_docs)
     
     @app.route("/groups/<group_id>/leave", methods=["POST"])
     def leave_group(group_id):
