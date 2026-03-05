@@ -132,7 +132,7 @@ def create_app():
 # Authentication routes
     @app.route("/login", methods = ["GET"])
     def login():
-        return render_template("login.html")
+        return render_template("signin.html")
     
     @app.route("/login", methods = ["POST"])
     def login_post():
