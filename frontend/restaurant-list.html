@@ -15,25 +15,27 @@
 
   <body>
     <div class="phone">
-      <div class="header">Restaurants</div>
+      <div class="header header-left">Restaurants</div>
 
       <!-- allows scrolling -->
       <div class="content scroll">
         <!-- TODO: filter (may abaondon it, but could also just do a simple filter via group later) -->
+         
+        <!-- attempt at backend integration -->
+        {% for r in restaurants %}
+        <div class="restaurant-card">
+          <div class="restaurant-title">{{ r.name }}</div>
+          <div class="restaurant-rating">
+            {{ "★" * r.avg_rating|round|int }}
+          </div>
+          <div class="restaurant-description">
+            Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+          </div>
+          <div class="restaurant-user">Posted by {{ r.last_user }}</div>
+          <div class="restaurant-date">{{ r.last_review_date }}</div>
+        </div>
+        {% endfor %}
 
-        <!-- TODO: add and allow actual insertions of resturant cards -->
-        <p>Item 1</p>
-        <p>Item 2</p>
-        <p>Item 3</p>
-        <p>Item 4</p>
-        <p>Item 5</p>
-        <p>Item 6</p>
-        <p>Item 7</p>
-        <p>Item 8</p>
-        <p>Item 9</p>
-        <p>Item 10</p>
-        <p>Item 11</p>
-        <p>Item 12</p>
       </div>
 
       <!-- Nav Bar -->
