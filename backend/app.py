@@ -121,6 +121,20 @@ def create_app():
         for r in restaurants_list:
             rid = r["_id"]
             r["avg_rating"] = rating_sum.get(rid, 0) / rating_cnt.get(rid, 1) if rating_cnt.get(rid, 0) > 0 else 0
+            latest = reviews.find_one(
+                {"restaurant_id": rid, "group_id": {"$in": group_ids_to_use}},
+                sort=[("created_at", -1)]
+            )
+            if latest:
+                author = users.find_one({"_id": latest["author_id"]}, {"username": 1})
+                r["last_user"] = author["username"] if author else "Unknown"
+                r["last_review_date"] = latest["created_at"].strftime("%b %d, %Y") if latest.get("created_at") else ""
+                r["last_review_text"] = latest.get("text", "")
+            else:
+                r["last_user"] = ""
+                r["last_review_date"] = ""
+                r["last_review_text"] = ""
+
 
         return render_template(
         "restaurant-list.html",
