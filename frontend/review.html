@@ -20,8 +20,7 @@
       <div class="header">{% if review %}Edit Review{% else %}Write Review{% endif %}</div>
 
       <div class="content scroll">
-        <form method="POST" action="{% if review %}/review/{{ review._id }}/edit{% else %}/review/new{% endif %}">
-
+        <form method="POST" action="{{ form_action }}">
           <!-- Restaurant Name -->
           <label>Restaurant Name</label>
           <input
@@ -65,9 +64,13 @@
 
           <!-- Group Selection -->
           <label>Group</label>
-          <select name="group" class="input-field">
+          <select name="group_id" class="input-field">
+              
             {% for g in groups %}
-              <option value="{{ g._id }}" {% if review and review.group_id and str(review.group_id) == str(g._id) %}selected{% endif %}>{{ g.name }}</option>
+              <option value="{{ g._id }}"
+                {% if review and review.group_id and (review.group_id|string) == (g._id|string) %}selected{% endif %}>
+                {{ g.name }}
+              </option>
             {% endfor %}
           </select>
 
