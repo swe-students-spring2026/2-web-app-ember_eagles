@@ -1,10 +1,11 @@
 import os
 import datetime
-from tokenize import group
+# from tokenize import group (this shouldnt be here as it has no relation to this app.)
 from flask import Flask, render_template, request, session, redirect, abort, url_for, make_response, flash
 import pymongo
 from bson.objectid import ObjectId
 from dotenv import load_dotenv, dotenv_values
+from werkzeug.security import generate_password_hash, check_password_hash
 
 load_dotenv()  # load environment variables from .env file
 
@@ -143,8 +144,8 @@ def create_app():
             flash("Please enter username and password.")
             return redirect(url_for("login"))
 
-        user = users.find_one({"username": username, "password": password})
-        if not user:
+        user = users.find_one({"username": username}) # you can no longer query mongoDB by password since its hashed, so username only and then use check_password_hash to verify.
+        if not user or not check_password_hash(user['password'], password):
             flash("Invalid username or password.")
             return redirect(url_for("login"))
         session["user_id"] = str(user["_id"])
@@ -156,6 +157,10 @@ def create_app():
         session.clear()
         return redirect(url_for("login"))
     
+    @app.route('/signup', methods=['GET']) # this serves as the actual signup HTML form to the user
+    def signup():
+        return render_template('signup.html')
+
     @app.route("/signup", methods = ["POST"])
     def signup_post():
         username = request.form.get("username", "").strip()
@@ -172,7 +177,7 @@ def create_app():
 
         users.insert_one({
             "username": username,
-            "password": password
+            "password": generate_password_hash(password)
         })
         flash("Account created successfully.")
         return redirect(url_for("login"))
@@ -278,7 +283,7 @@ def create_app():
             flash("Username already taken.")
             return redirect(url_for("profile"))
         
-        users.update_one({"_id": user_oid}, {"$set": {"username": username, "password": password}})
+        users.update_one({"_id": user_oid}, {"$set": {"username": username, "password": generate_password_hash(password)}})
         session["username"] = username
         flash("Profile updated successfully.")
         return redirect(url_for("profile"))
@@ -287,7 +292,7 @@ def create_app():
     @app.route("/groups", methods = ["GET"])
     def groups_page():
         user_id = ObjectId(session["user_id"])
-        my_groups = list(groups.find({"members": user_id},{"name": 1, "description": 1, "owner_id": 1}))
+        my_groups = list(groups.find({"members": user_id},{"name": 1, "description": 1, "owner_id": 1, "members": 1})) # we need to include the members field in the mongodb res.
         for g in my_groups:
             g["member_count"] = len(g.get("members", []))
             g["is_owner"] = (g.get("owner_id") == user_id)
@@ -406,7 +411,7 @@ def create_app():
     @app.route("/review", methods=["GET"])
     def my_reviews():
         user_id = ObjectId(session["user_id"])
-        my_reviews = list(reviews.find({"user_id": user_id}))
+        my_reviews = list(reviews.find({"author_id": user_id})) # needed to change from user_id to author_id
         return render_template("my-reviews.html", reviews=my_reviews)
     
     @app.route("/review/new", methods=["GET"])
@@ -448,9 +453,9 @@ def create_app():
             "restaurant_id": rest_id,
             "address": address,
             "rating": rating,
-            "user_id": ObjectId(session["user_id"]),
-            "created_at": datetime.utcnow(),
-            "updated_at": datetime.utcnow(),
+            "author_id": ObjectId(session["user_id"]),
+            "created_at": datetime.datetime.utcnow(),
+            "updated_at": datetime.datetime.utcnow(),
             "group_id": gid
         })
 
@@ -465,7 +470,7 @@ def create_app():
             flash("Invalid review id.")
             return redirect(url_for("my_reviews"))
 
-        result = reviews.delete_one({"_id": rid, "user_id": ObjectId(session["user_id"])})
+        result = reviews.delete_one({"_id": rid, "author_id": ObjectId(session["user_id"])})
         flash("Review deleted successfully.")
         return redirect(url_for("my_reviews"))
 
@@ -496,8 +501,8 @@ def create_app():
         if not review:
             flash("Review not found.")
             return redirect(url_for("my_reviews"))
-
-        return render_template("review.html", review=review)
+        my_groups = list(groups.find({"members": ObjectId(session["user_id"])}, {"name": 1}))
+        return render_template("review.html", review=review, groups=my_groups)
 
     @app.route("/review/<review_id>/edit", methods=["POST"])
     def edit_review(review_id):
@@ -508,7 +513,7 @@ def create_app():
             return redirect(url_for("my_reviews"))
         
         address = request.form.get("address", "").strip()
-        rating = request.form.get("rating", "").strip()
+        rating = int(request.form.get("rating", "0")) # have to make it an int. cannot do computations on str.
         restaurant_name = request.form.get("restaurant_name", "").strip()
         review_text = request.form.get("review_text", "").strip()
         group = request.form.get("group", "").strip()
@@ -534,8 +539,8 @@ def create_app():
                 "address": address,
                 "rating": rating,
                 "restaurant_id": rest_id,
-                "user_id": ObjectId(session["user_id"]),
-                "updated_at": datetime.utcnow(),
+                "author_id": ObjectId(session["user_id"]),
+                "updated_at": datetime.datetime.utcnow(),
                 "group_id": gid
             }})
         
