@@ -1,6 +1,7 @@
 <!--TLDR: 
-    1.filter not implemented (may abaondon it)
+    1.filter not yet implemented
     2.currently, the resturants cards are just placeholders. Need backend mongodb to dynamically insert them.
+    3. (line30) need to add a description/comment of the last posted review
 -->
 
 <!doctype html>
@@ -20,18 +21,14 @@
       <!-- allows scrolling -->
       <div class="content scroll">
         <!-- TODO: filter (may abaondon it, but could also just do a simple filter via group later) -->
-         
+
         <!-- attempt at backend integration -->
         {% for r in restaurants %}
         <div class="restaurant-card">
           <div class="restaurant-title">{{ r.name }}</div>
-          <div class="restaurant-rating">
-            {{ "★" * r.avg_rating|round|int }}
-          </div>
-          <div class="restaurant-description">
-            Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
-          </div>
-          <div class="restaurant-user">Posted by {{ r.last_user }}</div>
+          <div class="restaurant-rating">{{ "★" * r.avg_rating|round|int }}{{ "☆" * (5 - (r.avg_rating|round|int)) }}</div>
+          <div class="restaurant-description">{{ Lorem ipsum, dolor sit amet. }}</div>
+          <div class="restaurant-user">Last Posted by {{ r.last_user }}</div>
           <div class="restaurant-date">{{ r.last_review_date }}</div>
         </div>
         {% endfor %}
