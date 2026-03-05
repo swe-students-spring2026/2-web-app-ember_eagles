@@ -10,6 +10,18 @@
     <div class="phone">
       <div class="header header-left">Restaurants</div>
       <div class="content scroll">
+        <form method="get" action="/" class="filter-form">
+        <label class="form-label">Filter by group</label>
+        <select name="selected_group_id" class="form-input" onchange="this.form.submit()">
+          <option value="" {% if not selected_group_id %}selected{% endif %}>All groups</option>
+
+          {% for g in groups %}
+            <option value="{{ g._id }}" {% if selected_group_id == (g._id|string) %}selected{% endif %}>
+            {{ g.name }}
+            </option>
+          {% endfor %}
+        </select>
+
         {% for r in restaurants %}
         <a href="/restaurant/{{ r._id }}" class="restaurant-card-link">
           <div class="restaurant-card">
