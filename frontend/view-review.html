@@ -3,12 +3,41 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Write Review</title>
+    <title>{{ review.restaurant_name }} - Review</title>
     <link rel="stylesheet" href="globals.css" />
   </head>
-  
   <body>
-    
-  </body>
+    <div class="phone">
+      <div class="header">Review</div>
+      <div class="content scroll">
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="flash">
+              {% for msg in messages %}<p>{{ msg }}</p>{% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
 
+        <div class="review-card">
+          <div class="username">{{ review.restaurant_name }}</div>
+          <div class="form-subtext">{{ review.address }}</div>
+          <div class="review-stars">{% for i in range(5) %}{% if review.rating and i < review.rating %}★{% else %}☆{% endif %}{% endfor %}</div>
+          <p class="form-text">{{ review.text or '' }}</p>
+          <div class="form-subtext">{% if review.updated_at %}{{ review.updated_at.strftime('%b %d, %Y') }}{% elif review.created_at %}{{ review.created_at.strftime('%b %d, %Y') }}{% endif %}</div>
+          <div class="review-actions">
+            <a href="/review/{{ review._id }}/edit" class="btn">Edit</a>
+            <form method="post" action="/review/{{ review._id }}/delete" style="display:inline;">
+              <button type="submit" class="btn btn-delete">Delete</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="navbar">
+        <button class="nav-btn" onclick="location.href='/'">Home</button>
+        <button class="nav-btn" onclick="location.href='/review/new'">Post</button>
+        <button class="nav-btn" onclick="location.href='/profile'">Profile</button>
+        <button class="nav-btn" onclick="location.href='/groups'">Groups</button>
+      </div>
+    </div>
+  </body>
 </html>

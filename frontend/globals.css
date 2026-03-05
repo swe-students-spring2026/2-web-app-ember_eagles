@@ -236,6 +236,30 @@ body {
   margin: 0;
 }
 
+.review-stars {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.review-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.review-actions .btn {
+  width: auto;
+  padding: 8px 14px;
+}
+
+.btn-delete {
+  background: #bdbdbd;
+}
+
+.btn-delete:hover {
+  background: #a0a0a0;
+}
+
 /* Buttons */
 .group-actions {
   padding: 12px;
