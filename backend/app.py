@@ -435,7 +435,7 @@ def create_app():
         {"name": 1}
         ))
 
-        return render_template("review.html", groups=my_groups)
+        return render_template("review.html", groups=my_groups, form_action=url_for("review_post"))
     
     @app.route("/review/new", methods=["POST"])
     def review_post():
@@ -443,7 +443,7 @@ def create_app():
         address = request.form.get("address", "").strip()
         review_text = request.form.get("review_text", "").strip()
         rating = int(request.form.get("rating", "0"))
-        group = request.form.get("group", "").strip()
+        group = request.form.get("group_id", "").strip()
         gid = ObjectId(group) if group else None
 
 
@@ -517,10 +517,11 @@ def create_app():
         if review.get("author_id") != ObjectId(session["user_id"]):
             flash("You can only edit your own reviews.")
             return redirect(url_for("my_reviews"))
-        rest = restaurants.find_one({"_id": review["restaurant_id"]}, {"name": 1}) if review.get("restaurant_id") else None
+        rest = restaurants.find_one({"_id": review["restaurant_id"]}, {"name": 1,"address": 1}) if review.get("restaurant_id") else None
         review["restaurant_name"] = rest["name"] if rest else "Unknown"
         my_groups = list(groups.find({"members": ObjectId(session["user_id"])}, {"name": 1}))
-        return render_template("review.html", review=review, groups=my_groups)
+        return render_template("review.html", review=review, groups=my_groups, form_action=url_for("edit_review", review_id=review_id),
+        mode="edit")
 
     @app.route("/review/<review_id>/edit", methods=["POST"])
     def edit_review(review_id):
@@ -534,12 +535,16 @@ def create_app():
         if not existing:
             flash("Review not found or you can only edit your own reviews.")
             return redirect(url_for("my_reviews"))
-
-        address = request.form.get("address", "").strip()
-        rating = int(request.form.get("rating", "0")) # have to make it an int. cannot do computations on str.
+        
         restaurant_name = request.form.get("restaurant_name", "").strip()
+        address = request.form.get("address", "").strip()
         review_text = request.form.get("review_text", "").strip()
-        group = request.form.get("group", "").strip()
+        group = request.form.get("group_id", "").strip()
+        rating_raw = request.form.get("rating", "").strip()
+        try:
+            rating = int(rating_raw) if rating_raw != "" else None
+        except ValueError:
+            rating = None
         gid = ObjectId(group) if group else None
 
         if not review_text or not restaurant_name or not address:
@@ -562,7 +567,6 @@ def create_app():
                 "address": address,
                 "rating": rating,
                 "restaurant_id": rest_id,
-                "author_id": ObjectId(session["user_id"]),
                 "updated_at": datetime.datetime.utcnow(),
                 "group_id": gid
             }})
