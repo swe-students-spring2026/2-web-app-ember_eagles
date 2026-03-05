@@ -11,9 +11,6 @@
     <div class="header">{{ restaurant.name }}</div>
     <div class="content scroll">
       <div class="restaurant-top">
-        <div class="avatar">
-          <img src="images/restaurant-icon.png" alt="" />
-        </div>
         <div class="restaurant-info">
           <div class="username">{{ restaurant.name }}</div>
           <div class="group-description">{% if avg_rating is not none %}{{ avg_rating }}{% else %}—{% endif %}</div>
